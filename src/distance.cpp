@@ -1,4 +1,5 @@
 #include <RcppArmadillo.h>
+#include "dftomat.h"
 using namespace Rcpp;
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::depends(RcppArmadillo)]]
@@ -20,24 +21,25 @@ inline double distance_squared(arma::mat& x)
 //' @description Computes pairwise distances
 //' @author Jared P. Lander
 // [[Rcpp::export]]
-List threshold_distance(DataFrame obj, double threshold, String x_col="x", String y_col="y", String id_col="ID")
+List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=CharacterVector("x", "y"), String id_col="ID")
 {
     // pre-compute the threshold in squared so we don't need to recompute on every iteration
     const double threshold_squared = pow(threshold, 2);
 
     int num_rows = obj.nrow();
     // get x/y vectors
-    arma::vec x = obj[x_col];
-    arma::vec y = obj[y_col];
+    //arma::vec x = obj[x_col];
+    //arma::vec y = obj[y_col];
+    // combine into a matrix
+    //arma::mat c = arma::join_rows(x, y);
+    arma::mat c = dftomat(obj, cols);
+
     IntegerVector id = obj[id_col];
 
     // vectors to track indices to keep
     std::vector<int> i_keep;
     std::vector<int> j_keep;
     std::vector<double> distances;
-
-    // combine into a matrix
-    arma::mat c = arma::join_rows(x, y);
 
     // keep track of how many we're processing
     R_xlen_t kept = 0;
@@ -53,7 +55,8 @@ List threshold_distance(DataFrame obj, double threshold, String x_col="x", Strin
             }
 
             // if the distance is too far even on one dimension, skip the problem
-            if(abs(x[i] - x[j]) > threshold)
+            //if(abs(x[i] - x[j]) > threshold)
+            if(arma::as_scalar(abs(c.col(0).row(i) - c.col(0).row(j))) > threshold)
             {
                 break;
             }
@@ -76,7 +79,7 @@ List threshold_distance(DataFrame obj, double threshold, String x_col="x", Strin
             //if(the_dist > threshold)
             if(the_dist_squared > threshold_squared)
             {
-                break;
+                continue;
             }
 
             // keep track of which entries were right
@@ -88,6 +91,7 @@ List threshold_distance(DataFrame obj, double threshold, String x_col="x", Strin
         }
     }
 
+    //R_xlen_t kept = i_keep.size();
     R_xlen_t skipped = num_rows*(num_rows - 1)/2 - kept;
 
     // need to add 1 back to the indices since C++ starts at 0 while R starts at 1

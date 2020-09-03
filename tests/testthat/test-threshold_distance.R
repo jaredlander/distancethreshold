@@ -1,3 +1,4 @@
+set.seed(62)
 thedf <- data.frame(
     ID=rep(LETTERS[1:3], length.out=10),
     x=sample(10),
@@ -7,7 +8,7 @@ thedf <- data.frame(
     extra3=sample(10)
 )
 
-res1 <- threshold_distance(thedf, threshold=3, as_dataframe=FALSE)
+res1 <- threshold_distance(thedf, threshold=3, as_dataframe=FALSE, cols=c('x', 'y'))
 res2 <- threshold_distance(thedf, threshold=3, as_dataframe=TRUE)
 
 res1_extras <- threshold_distance(thedf, threshold=3, as_dataframe=FALSE, extra_columns=c('extra1', 'extra2'))

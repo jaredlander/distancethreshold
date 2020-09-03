@@ -1,3 +1,4 @@
+#' @title expand_column_values
 #' @examples
 #'
 #' thedf <- tibble::tibble(
@@ -30,10 +31,10 @@ expand_column_values <- function(column, values, index_i, index_j)
 #' @details Computes the distance between rows and returns those that fall below `threshold`.
 #' If two rows have the same ID, they will not be compared and the row-pairs will not be returned.
 #' @md
+#' @author Jared P. Lander
 #' @param data `data.frame` of data to compute distance of
 #' @param threshold Maximum distance to return
-#' @param x_col Name of column holding x data
-#' @param y_col Name of column holding y data
+#' @param cols Names of columns of numeric data. The data will first be sorted on the first of these.
 #' @param id_col Name of column holding ID data
 #' @param extra_columns Names of other columns to expand into the results based on indices.
 #' Two new elements will be made for each, one for the i index and one for the j index.
@@ -55,14 +56,13 @@ expand_column_values <- function(column, values, index_i, index_j)
 #'
 #' threshold_distance(thedf, threshold=3, as_dataframe=FALSE)
 #' threshold_distance(thedf, threshold=3, as_dataframe=TRUE)
-threshold_distance <- function(data, threshold, x_col="x", y_col="y", id_col="ID", extra_columns=NULL, as_dataframe=FALSE)
+threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", extra_columns=NULL, as_dataframe=FALSE)
 {
     # make sure we're only working with data.frames (or tibbles, or data.tables)
     assertthat::assert_that(is.data.frame(data))
     assertthat::assert_that(is.numeric(threshold))
     assertthat::assert_that(length(threshold) == 1)
-    assertthat::assert_that(is.character(x_col))
-    assertthat::assert_that(is.character(y_col))
+    assertthat::assert_that(is.character(cols))
     assertthat::assert_that(is.character(id_col))
     assertthat::assert_that(is.character(extra_columns) | is.null(extra_columns))
     assertthat::assert_that(is.logical(as_dataframe))
@@ -73,13 +73,13 @@ threshold_distance <- function(data, threshold, x_col="x", y_col="y", id_col="ID
 
     # switch to data.table for fast sorting
     data <- data.table::as.data.table(data)
-    data.table::setkeyv(data, x_col)
+    data.table::setkeyv(data, cols[1])
 
     # the C++ function needs ID as an integer so make that happen
     data[, .id_integer_:=as.integer(as.factor(.SD[[id_col]])), .SDcols=id_col]
 
     # call the C++ function
-    results <- .Call(`_distancethreshold_threshold_distance`, data, threshold, x_col, y_col, '.id_integer_')
+    results <- .Call(`_distancethreshold_threshold_distance`, data, threshold, cols, '.id_integer_')
 
     # expand the IDs according to their corresponding indices
     # could have done this on the C++ side, except we passed integers to C++ instead of the actual IDs

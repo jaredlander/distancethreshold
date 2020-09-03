@@ -7,9 +7,9 @@
 threshold_distance(
   data,
   threshold,
-  x_col = "x",
-  y_col = "y",
+  cols = c("x", "y"),
   id_col = "ID",
+  extra_columns = NULL,
   as_dataframe = FALSE
 )
 }
@@ -18,11 +18,12 @@ threshold_distance(
 
 \item{threshold}{Maximum distance to return}
 
-\item{x_col}{Name of column holding x data}
-
-\item{y_col}{Name of column holding y data}
+\item{cols}{Names of columns of numeric data. The data will first be sorted on the first of these.}
 
 \item{id_col}{Name of column holding ID data}
+
+\item{extra_columns}{Names of other columns to expand into the results based on indices.
+Two new elements will be made for each, one for the i index and one for the j index.}
 
 \item{as_dataframe}{\code{logical} if a \code{list} (default) or \code{data.frame} should be returned}
 }
@@ -38,12 +39,18 @@ Computes the distance between rows and returns those that fall below \code{thres
 If two rows have the same ID, they will not be compared and the row-pairs will not be returned.
 }
 \examples{
-mydf <- tibble::tibble(
+thedf <- tibble::tibble(
 ID=rep(LETTERS[1:3], length.out=10),
 x=sample(10),
-y=sample(10)
+y=sample(10),
+extra1=sample(letters, size=10),
+extra2=sample(letters, size=10),
+extra3=sample(10)
 )
 
-threshold_distance(mydf, threshold=3, as_dataframe=FALSE)
-threshold_distance(mydf, threshold=3, as_dataframe=TRUE)
+threshold_distance(thedf, threshold=3, as_dataframe=FALSE)
+threshold_distance(thedf, threshold=3, as_dataframe=TRUE)
+}
+\author{
+Jared P. Lander
 }

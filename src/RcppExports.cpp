@@ -9,25 +9,36 @@
 
 using namespace Rcpp;
 
+// dftomat
+arma::mat dftomat(DataFrame obj, CharacterVector cols);
+RcppExport SEXP _distancethreshold_dftomat(SEXP objSEXP, SEXP colsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< DataFrame >::type obj(objSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type cols(colsSEXP);
+    rcpp_result_gen = Rcpp::wrap(dftomat(obj, cols));
+    return rcpp_result_gen;
+END_RCPP
+}
 // threshold_distance
-List threshold_distance(DataFrame obj, double threshold, String x_col, String y_col, String id_col);
-static SEXP _distancethreshold_threshold_distance_try(SEXP objSEXP, SEXP thresholdSEXP, SEXP x_colSEXP, SEXP y_colSEXP, SEXP id_colSEXP) {
+List threshold_distance(DataFrame obj, double threshold, CharacterVector cols, String id_col);
+static SEXP _distancethreshold_threshold_distance_try(SEXP objSEXP, SEXP thresholdSEXP, SEXP colsSEXP, SEXP id_colSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< DataFrame >::type obj(objSEXP);
     Rcpp::traits::input_parameter< double >::type threshold(thresholdSEXP);
-    Rcpp::traits::input_parameter< String >::type x_col(x_colSEXP);
-    Rcpp::traits::input_parameter< String >::type y_col(y_colSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type cols(colsSEXP);
     Rcpp::traits::input_parameter< String >::type id_col(id_colSEXP);
-    rcpp_result_gen = Rcpp::wrap(threshold_distance(obj, threshold, x_col, y_col, id_col));
+    rcpp_result_gen = Rcpp::wrap(threshold_distance(obj, threshold, cols, id_col));
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP _distancethreshold_threshold_distance(SEXP objSEXP, SEXP thresholdSEXP, SEXP x_colSEXP, SEXP y_colSEXP, SEXP id_colSEXP) {
+RcppExport SEXP _distancethreshold_threshold_distance(SEXP objSEXP, SEXP thresholdSEXP, SEXP colsSEXP, SEXP id_colSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(_distancethreshold_threshold_distance_try(objSEXP, thresholdSEXP, x_colSEXP, y_colSEXP, id_colSEXP));
+        rcpp_result_gen = PROTECT(_distancethreshold_threshold_distance_try(objSEXP, thresholdSEXP, colsSEXP, id_colSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -52,7 +63,7 @@ RcppExport SEXP _distancethreshold_threshold_distance(SEXP objSEXP, SEXP thresho
 static int _distancethreshold_RcppExport_validate(const char* sig) { 
     static std::set<std::string> signatures;
     if (signatures.empty()) {
-        signatures.insert("List(*threshold_distance)(DataFrame,double,String,String,String)");
+        signatures.insert("List(*threshold_distance)(DataFrame,double,CharacterVector,String)");
     }
     return signatures.find(sig) != signatures.end();
 }
@@ -65,7 +76,8 @@ RcppExport SEXP _distancethreshold_RcppExport_registerCCallable() {
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_distancethreshold_threshold_distance", (DL_FUNC) &_distancethreshold_threshold_distance, 5},
+    {"_distancethreshold_dftomat", (DL_FUNC) &_distancethreshold_dftomat, 2},
+    {"_distancethreshold_threshold_distance", (DL_FUNC) &_distancethreshold_threshold_distance, 4},
     {"_distancethreshold_RcppExport_registerCCallable", (DL_FUNC) &_distancethreshold_RcppExport_registerCCallable, 0},
     {NULL, NULL, 0}
 };
