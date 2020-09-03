@@ -1,5 +1,21 @@
+#' @examples
+#'
+#' thedf <- tibble::tibble(
+#' ID=rep(LETTERS[1:3], length.out=10),
+#' x=sample(10),
+#' y=sample(10),
+#' extra1=sample(letters, size=10),
+#' extra2=sample(letters, size=10),
+#' extra3=sample(10)
+#' )
+#' expand_column_values('extra1', thedf$extra1, index_i=c(1, 3), index_j=c(2, 4))
 expand_column_values <- function(column, values, index_i, index_j)
 {
+    assertthat::assert_that(is.character(column))
+    assertthat::assert_that(is.vector(values))
+    assertthat::assert_that(is.vector(index_i))
+    assertthat::assert_that(is.vector(index_j))
+
     stats::setNames(
         data.frame(
             values[index_i],
@@ -28,18 +44,28 @@ expand_column_values <- function(column, values, index_i, index_j)
 #' @export
 #'
 #' @examples
-#' mydf <- tibble::tibble(
+#' thedf <- tibble::tibble(
 #' ID=rep(LETTERS[1:3], length.out=10),
 #' x=sample(10),
-#' y=sample(10)
+#' y=sample(10),
+#' extra1=sample(letters, size=10),
+#' extra2=sample(letters, size=10),
+#' extra3=sample(10)
 #' )
 #'
-#' threshold_distance(mydf, threshold=3, as_dataframe=FALSE)
-#' threshold_distance(mydf, threshold=3, as_dataframe=TRUE)
+#' threshold_distance(thedf, threshold=3, as_dataframe=FALSE)
+#' threshold_distance(thedf, threshold=3, as_dataframe=TRUE)
 threshold_distance <- function(data, threshold, x_col="x", y_col="y", id_col="ID", extra_columns=NULL, as_dataframe=FALSE)
 {
     # make sure we're only working with data.frames (or tibbles, or data.tables)
     assertthat::assert_that(is.data.frame(data))
+    assertthat::assert_that(is.numeric(threshold))
+    assertthat::assert_that(length(threshold) == 1)
+    assertthat::assert_that(is.character(x_col))
+    assertthat::assert_that(is.character(y_col))
+    assertthat::assert_that(is.character(id_col))
+    assertthat::assert_that(is.character(extra_columns) | is.null(extra_columns))
+    assertthat::assert_that(is.logical(as_dataframe))
 
     # save generated ID column names for later
     idcol_1 <- sprintf("%s_1", id_col)
