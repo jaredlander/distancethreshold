@@ -21,7 +21,7 @@ inline double distance_squared(arma::mat& x)
 //' @description Computes pairwise distances
 //' @author Jared P. Lander
 // [[Rcpp::export]]
-List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=CharacterVector("x", "y"), String id_col="ID")
+List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=CharacterVector("x", "y"), String id_col="ID", bool check_id=TRUE)
 {
     // pre-compute the threshold in squared so we don't need to recompute on every iteration
     const double threshold_squared = pow(threshold, 2);
@@ -34,7 +34,15 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
     //arma::mat c = arma::join_rows(x, y);
     arma::mat c = dftomat(obj, cols);
 
-    IntegerVector id = obj[id_col];
+    IntegerVector id;
+    if(check_id)
+    {
+        id = obj[id_col];
+    }
+    else
+    {
+        id.push_back(0);
+    }
 
     // vectors to track indices to keep
     std::vector<int> i_keep;
@@ -49,7 +57,7 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
         for(int j = i; j < num_rows; ++j)
         {
             // don't compare a number with itself
-            if(i == j || id[i] == id[j])
+            if(i == j || (check_id && id[i] == id[j]))
             {
                 continue;
             }

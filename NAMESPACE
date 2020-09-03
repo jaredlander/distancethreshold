@@ -3,4 +3,5 @@
 export(dftomat)
 export(threshold_distance)
 importFrom(Rcpp,sourceCpp)
+importFrom(data.table,`:=`)
 useDynLib(distancethreshold, .registration = TRUE)

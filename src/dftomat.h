@@ -1,5 +1,5 @@
-#ifndef PKG_DISTANCETHRESHOLD
-#define PKG_DISTANCETHRESHOLD
+#ifndef DISTANCETHRESHOLD_DFTOMAT
+#define DISTANCETHRESHOLD_DFTOMAT
 
 arma::mat dftomat(Rcpp::DataFrame obj, Rcpp::CharacterVector cols);
 

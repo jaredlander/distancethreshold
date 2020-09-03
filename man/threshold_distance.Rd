@@ -10,7 +10,8 @@ threshold_distance(
   cols = c("x", "y"),
   id_col = "ID",
   extra_columns = NULL,
-  as_dataframe = FALSE
+  as_dataframe = FALSE,
+  check_id = TRUE
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ threshold_distance(
 Two new elements will be made for each, one for the i index and one for the j index.}
 
 \item{as_dataframe}{\code{logical} if a \code{list} (default) or \code{data.frame} should be returned}
+
+\item{check_id}{Whether the ID variable should be checked for inclusion}
 }
 \value{
 Either a \code{list} or \code{data.frame} showing which IDs matched with other
@@ -39,7 +42,7 @@ Computes the distance between rows and returns those that fall below \code{thres
 If two rows have the same ID, they will not be compared and the row-pairs will not be returned.
 }
 \examples{
-thedf <- tibble::tibble(
+thedf <- data.frame(
 ID=rep(LETTERS[1:3], length.out=10),
 x=sample(10),
 y=sample(10),
@@ -50,6 +53,7 @@ extra3=sample(10)
 
 threshold_distance(thedf, threshold=3, as_dataframe=FALSE)
 threshold_distance(thedf, threshold=3, as_dataframe=TRUE)
+threshold_distance(thedf, threshold=3, as_dataframe=TRUE, check_id=FALSE)
 }
 \author{
 Jared P. Lander

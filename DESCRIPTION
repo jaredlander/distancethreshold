@@ -14,6 +14,7 @@ LinkingTo:
     RcppArmadillo
 Imports: 
     Rcpp,
-    data.table
+    data.table,
+    assertthat
 Suggests: 
     testthat

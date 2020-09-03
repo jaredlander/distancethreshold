@@ -1,7 +1,15 @@
 #' @title expand_column_values
+#' @description  Creates extra columns to store in a list
+#' @details Given a `vector` of values, create repeated values of it according to two index variables.
+#' @param column Name of column to be expanded
+#' @param values Actual `vector` of data to expand
+#' @param index_i `vector` of indexes to expand `column`
+#' @param index_j Second `vector` of indexes to expand `column`
+#' @md
+#' @return A list
 #' @examples
 #'
-#' thedf <- tibble::tibble(
+#' thedf <- data.frame(
 #' ID=rep(LETTERS[1:3], length.out=10),
 #' x=sample(10),
 #' y=sample(10),
@@ -9,7 +17,7 @@
 #' extra2=sample(letters, size=10),
 #' extra3=sample(10)
 #' )
-#' expand_column_values('extra1', thedf$extra1, index_i=c(1, 3), index_j=c(2, 4))
+#' distancethreshold:::expand_column_values('extra1', thedf$extra1, index_i=c(1, 3), index_j=c(2, 4))
 expand_column_values <- function(column, values, index_i, index_j)
 {
     assertthat::assert_that(is.character(column))
@@ -39,13 +47,14 @@ expand_column_values <- function(column, values, index_i, index_j)
 #' @param extra_columns Names of other columns to expand into the results based on indices.
 #' Two new elements will be made for each, one for the i index and one for the j index.
 #' @param as_dataframe `logical` if a `list` (default) or `data.frame` should be returned
+#' @param check_id Whether the ID variable should be checked for inclusion
 #'
 #' @return Either a `list` or `data.frame` showing which IDs matched with other
 #' IDs, the distance between them and the rows numbers where the pairs occured.
 #' @export
-#'
+#' @importFrom data.table `:=`
 #' @examples
-#' thedf <- tibble::tibble(
+#' thedf <- data.frame(
 #' ID=rep(LETTERS[1:3], length.out=10),
 #' x=sample(10),
 #' y=sample(10),
@@ -56,7 +65,8 @@ expand_column_values <- function(column, values, index_i, index_j)
 #'
 #' threshold_distance(thedf, threshold=3, as_dataframe=FALSE)
 #' threshold_distance(thedf, threshold=3, as_dataframe=TRUE)
-threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", extra_columns=NULL, as_dataframe=FALSE)
+#' threshold_distance(thedf, threshold=3, as_dataframe=TRUE, check_id=FALSE)
+threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", extra_columns=NULL, as_dataframe=FALSE, check_id=TRUE)
 {
     # make sure we're only working with data.frames (or tibbles, or data.tables)
     assertthat::assert_that(is.data.frame(data))
@@ -66,6 +76,7 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
     assertthat::assert_that(is.character(id_col))
     assertthat::assert_that(is.character(extra_columns) | is.null(extra_columns))
     assertthat::assert_that(is.logical(as_dataframe))
+    assertthat::assert_that(is.logical(check_id))
 
     # save generated ID column names for later
     idcol_1 <- sprintf("%s_1", id_col)
@@ -76,10 +87,10 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
     data.table::setkeyv(data, cols[1])
 
     # the C++ function needs ID as an integer so make that happen
-    data[, .id_integer_:=as.integer(as.factor(.SD[[id_col]])), .SDcols=id_col]
+    data[, '.id_integer_':=as.integer(as.factor(.SD[[id_col]])), .SDcols=id_col]
 
     # call the C++ function
-    results <- .Call(`_distancethreshold_threshold_distance`, data, threshold, cols, '.id_integer_')
+    results <- .Call(`_distancethreshold_threshold_distance`, data, threshold, cols, '.id_integer_', check_id)
 
     # expand the IDs according to their corresponding indices
     # could have done this on the C++ side, except we passed integers to C++ instead of the actual IDs
