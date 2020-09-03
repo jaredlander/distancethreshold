@@ -1,0 +1,18 @@
+Package: distancethreshold
+Type: Package
+Title: Computes the distances between rows of a data.frame that fall under a certain threshold
+Version: 0.1.0
+Author: Jared P. Lander
+Maintainer: Jared P. Lander <packages@jaredlander.com>
+Description: Computes the distances between rows of a data.frame that fall under a certain threshold.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+Imports: 
+    Rcpp
+Suggests: 
+    testthat
