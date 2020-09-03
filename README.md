@@ -9,6 +9,8 @@
 status](https://github.com/jaredlander/distancethreshold/workflows/R-CMD-check/badge.svg)](https://github.com/jaredlander/distancethreshold/actions)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Codecov test
+coverage](https://codecov.io/gh/jaredlander/distancethreshold/branch/master/graph/badge.svg)](https://codecov.io/gh/jaredlander/distancethreshold?branch=master)
 <!-- badges: end -->
 
 The goal of distancethreshold is to …
