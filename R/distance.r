@@ -119,8 +119,8 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
         results$kept <- NULL
         results$skipped <- NULL
         results <- data.table::setDT(results, key=c(idcol_1, idcol_2))
-        attr(results, 'kept') <- kept
-        attr(results, 'skipped') <- skipped
+        data.table::setattr(x=results, name='kept', value=kept)
+        data.table::setattr(x=results, name='skipped', value=skipped)
     }
 
     return(results)
