@@ -6,3 +6,5 @@
 ^cran-comments\.md$
 ^\.github$
 ^README\.Rmd$
+src/index_test.cpp
+src/map_test.cpp
