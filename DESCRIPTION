@@ -2,7 +2,12 @@ Package: distancethreshold
 Type: Package
 Title: Computes the distances between rows of a data.frame that fall under a certain threshold
 Version: 0.1.0
-Author: Jared P. Lander
+Authors@R: 
+    person(given = "Jared",
+           family = "Lander",
+           role = c("aut", "cre"),
+           email = "packages@jaredlander.com",
+           comment = c(ORCID = "0000-0002-7291-726X"))
 Maintainer: Jared P. Lander <packages@jaredlander.com>
 Description: Computes the distances between rows of a data.frame that fall under a certain threshold.
 License: MIT + file LICENSE
