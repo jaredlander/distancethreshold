@@ -1,6 +1,8 @@
 ## Test environments
-* local R installation, R 4.0.2 (Ubuntu)
-* win-builder (devel)
+* local R installation, R 4.0.2 (Ubuntu 18.04)
+* GitHub Actions: R Release on Ubuntu 20.04
+* GitHub Actions: R Devel on Ubuntu 20.04
+* GitHub Actions: R Release on Windows latest
 
 ## R CMD check results
 
