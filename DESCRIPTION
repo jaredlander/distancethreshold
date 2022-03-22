@@ -2,7 +2,6 @@ Package: distancethreshold
 Type: Package
 Title: Computes the Distances Between Rows of a data.frame that Fall Under a Certain Threshold
 Version: 0.1.0
-<<<<<<< HEAD
 Authors@R: 
     person(given = "Jared",
            family = "Lander",
