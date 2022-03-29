@@ -5,16 +5,11 @@ using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::interfaces(cpp)]]
 
-inline double distance(arma::mat& x)
-{
-    // Computes the euclidean distance between the first and second row of a matrix
-    return sqrt(sum(pow(x.row(0) - x.row(1), 2)));
-}
 
-inline double distance_squared(arma::mat& x)
+inline double distance_squared(const arma::rowvec& x, const arma::rowvec& y)
 {
-    // Computes the squared euclidean distance between the first and second row of a matrix
-    return sum(pow(x.row(0) - x.row(1), 2));
+    // Computes the squared euclidean distance between the two row vectors
+    return sum(square(x - y));
 }
 
 //' @title threshold_distance_compute
@@ -54,8 +49,12 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
 
     for(int i = 0; i < num_rows; ++i)
     {
+        arma::rowvec x = c.row(i);
+
         for(int j = i; j < num_rows; ++j)
         {
+            arma::rowvec y = c.row(j);
+
             // don't compare a number with itself
             if(i == j || (check_id && id[i] == id[j]))
             {
@@ -64,7 +63,7 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
 
             // if the distance is too far even on one dimension, skip the problem
             //if(abs(x[i] - x[j]) > threshold)
-            if(arma::as_scalar(abs(c.col(0).row(i) - c.col(0).row(j))) > threshold)
+            if(arma::as_scalar(abs(x.at(0) - y.at(0))) > threshold)
             {
                 break;
             }
@@ -76,12 +75,7 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
             //}
 
             // compute the distance
-            arma::uvec indices;
-            // not sure why this notation works but it does
-            indices << i << j;
-            arma::mat mat_ij = c.rows(indices);
-            //double the_dist = distance(mat_ij);
-            double the_dist_squared = distance_squared(mat_ij);
+            double the_dist_squared = distance_squared(x, y);
 
             // if this distance is too big, skip ahead
             //if(the_dist > threshold)
