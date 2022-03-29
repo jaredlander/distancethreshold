@@ -84,6 +84,7 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
 
     # switch to data.table for fast sorting
     data <- data.table::as.data.table(data)
+    data[, .i_original_ordering_ := .I]
     data.table::setkeyv(data, cols[1])
 
     # the C++ function needs ID as an integer so make that happen
@@ -91,6 +92,11 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
 
     # call the C++ function
     results <- .Call(`_distancethreshold_threshold_distance`, data, threshold, cols, '.id_integer_', check_id)
+
+    # fix ordering of results
+    # sorting data causes the i, j to refer to the sorted data, not the original data
+    results$i <- data$.i_original_ordering_[results$i]
+    results$j <- data$.i_original_ordering_[results$j]
 
     # expand the IDs according to their corresponding indices
     # could have done this on the C++ side, except we passed integers to C++ instead of the actual IDs
