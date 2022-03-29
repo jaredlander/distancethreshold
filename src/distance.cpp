@@ -67,19 +67,19 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
     // keep track of how many we're processing
     R_xlen_t kept = 0;
 
-    for(int i = 0; i < num_rows; ++i)
+    for(int i = 0; i < num_rows - 1; ++i)
     {
         arma::rowvec x = c.row(i);
 
-        for(int j = i; j < num_rows; ++j)
+        for(int j = i + 1; j < num_rows; ++j)
         {
-            arma::rowvec y = c.row(j);
-
             // don't compare a number with itself
-            if(i == j || (check_id && id[i] == id[j]))
+            if(check_id && id[i] == id[j])
             {
                 continue;
             }
+
+            arma::rowvec y = c.row(j);
 
             // if the distance is too far even on one dimension, skip the problem
             //if(abs(x[i] - x[j]) > threshold)
