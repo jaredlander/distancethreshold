@@ -6,18 +6,33 @@ using namespace Rcpp;
 // [[Rcpp::interfaces(cpp)]]
 
 
-inline double distance_squared(const arma::rowvec& x, const arma::rowvec& y)
+double euclidean_squared(const arma::rowvec& x, const arma::rowvec& y)
 {
     // Computes the squared euclidean distance between the two row vectors
     return sum(square(x - y));
 }
 
+double small_haversine_squared(const arma::rowvec& x, const arma::rowvec& y)
+{
+    auto w = arma::rowvec({ 1, cos((x.at(0) + y.at(0)) / 2) });
+    return sum(square((y - x) % w));
+}
+
+typedef double (*funcPtr)(const arma::rowvec&, const arma::rowvec&);
+
 //' @title threshold_distance_compute
 //' @description Computes pairwise distances
 //' @author Jared P. Lander
 // [[Rcpp::export]]
-List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=CharacterVector("x", "y"), String id_col="ID", bool check_id=TRUE)
+List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=CharacterVector("x", "y"), String id_col="ID", bool check_id=TRUE, String distance_type = "euclidean")
 {
+    funcPtr distance_func = nullptr;
+    if (distance_type == "euclidean") {
+        distance_func = &euclidean_squared;
+    } else if (distance_type == "haversine") {
+        distance_func = &small_haversine_squared;
+    }
+
     // pre-compute the threshold in squared so we don't need to recompute on every iteration
     const double threshold_squared = pow(threshold, 2);
 
@@ -75,7 +90,7 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
             //}
 
             // compute the distance
-            double the_dist_squared = distance_squared(x, y);
+            double the_dist_squared = distance_func(x, y);
 
             // if this distance is too big, skip ahead
             //if(the_dist > threshold)

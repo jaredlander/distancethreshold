@@ -25,17 +25,17 @@ namespace distancethreshold {
         }
     }
 
-    inline List threshold_distance(DataFrame obj, double threshold, CharacterVector cols = CharacterVector("x", "y"), String id_col = "ID", bool check_id = TRUE) {
-        typedef SEXP(*Ptr_threshold_distance)(SEXP,SEXP,SEXP,SEXP,SEXP);
+    inline List threshold_distance(DataFrame obj, double threshold, CharacterVector cols = CharacterVector("x", "y"), String id_col = "ID", bool check_id = TRUE, String distance_type = "euclidean") {
+        typedef SEXP(*Ptr_threshold_distance)(SEXP,SEXP,SEXP,SEXP,SEXP,SEXP);
         static Ptr_threshold_distance p_threshold_distance = NULL;
         if (p_threshold_distance == NULL) {
-            validateSignature("List(*threshold_distance)(DataFrame,double,CharacterVector,String,bool)");
+            validateSignature("List(*threshold_distance)(DataFrame,double,CharacterVector,String,bool,String)");
             p_threshold_distance = (Ptr_threshold_distance)R_GetCCallable("distancethreshold", "_distancethreshold_threshold_distance");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_threshold_distance(Shield<SEXP>(Rcpp::wrap(obj)), Shield<SEXP>(Rcpp::wrap(threshold)), Shield<SEXP>(Rcpp::wrap(cols)), Shield<SEXP>(Rcpp::wrap(id_col)), Shield<SEXP>(Rcpp::wrap(check_id)));
+            rcpp_result_gen = p_threshold_distance(Shield<SEXP>(Rcpp::wrap(obj)), Shield<SEXP>(Rcpp::wrap(threshold)), Shield<SEXP>(Rcpp::wrap(cols)), Shield<SEXP>(Rcpp::wrap(id_col)), Shield<SEXP>(Rcpp::wrap(check_id)), Shield<SEXP>(Rcpp::wrap(distance_type)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
