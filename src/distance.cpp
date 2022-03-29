@@ -5,6 +5,11 @@ using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::interfaces(cpp)]]
 
+// mean radius from:
+//  https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
+#define EARTH_RADIUS (double)6371000.0
+
+constexpr double EARTH_RADIUS_SQUARED = pow(EARTH_RADIUS, 2);
 
 double euclidean_squared(const arma::rowvec& x, const arma::rowvec& y)
 {
@@ -15,7 +20,7 @@ double euclidean_squared(const arma::rowvec& x, const arma::rowvec& y)
 double small_haversine_squared(const arma::rowvec& x, const arma::rowvec& y)
 {
     auto w = arma::rowvec({ 1, cos((x.at(0) + y.at(0)) / 2) });
-    return sum(square((y - x) % w));
+    return EARTH_RADIUS_SQUARED * sum(square((y - x) % w));
 }
 
 typedef double (*funcPtr)(const arma::rowvec&, const arma::rowvec&);
