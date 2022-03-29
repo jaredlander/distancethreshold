@@ -83,7 +83,7 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
 
             // if the distance is too far even on one dimension, skip the problem
             //if(abs(x[i] - x[j]) > threshold)
-            if(arma::as_scalar(abs(x.at(0) - y.at(0))) > threshold)
+            if(arma::as_scalar(abs(x.at(0) - y.at(0))) * (distance_type == "haversine" ? EARTH_RADIUS : 1.0) > threshold)
             {
                 break;
             }
