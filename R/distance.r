@@ -96,15 +96,15 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
     # call the C++ function
     results <- .Call(`_distancethreshold_threshold_distance`, data, threshold, cols, '.id_integer_', check_id, distance_type)
 
-    # fix ordering of results
-    # sorting data causes the i, j to refer to the sorted data, not the original data
-    results$i <- data$.i_original_ordering_[results$i]
-    results$j <- data$.i_original_ordering_[results$j]
-
     # expand the IDs according to their corresponding indices
     # could have done this on the C++ side, except we passed integers to C++ instead of the actual IDs
     results[[idcol_1]] <- data[[id_col]][results$i]
     results[[idcol_2]] <- data[[id_col]][results$j]
+
+    # fix ordering of results
+    # sorting data causes the i, j to refer to the sorted data, not the original data
+    results$i <- data$.i_original_ordering_[results$i]
+    results$j <- data$.i_original_ordering_[results$j]
 
     # if the user wants other columns to be expanded, do it here
     if(!is.null(extra_columns))
