@@ -11,7 +11,8 @@ threshold_distance(
   id_col = "ID",
   extra_columns = NULL,
   as_dataframe = FALSE,
-  check_id = TRUE
+  check_id = TRUE,
+  distance_type = c("euclidean", "haversine")
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ Two new elements will be made for each, one for the i index and one for the j in
 \item{as_dataframe}{\code{logical} if a \code{list} (default) or \code{data.frame} should be returned}
 
 \item{check_id}{Whether the ID variable should be checked for inclusion}
+
+\item{distance_type}{What distance function to use}
 }
 \value{
 Either a \code{list} or \code{data.frame} showing which IDs matched with other
