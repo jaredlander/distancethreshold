@@ -42,3 +42,25 @@ test_that("Outcome is the right size", {
     expect_equal(dim(res2_extras), c(5, 9))
     expect_equal(dim(res2_extras_nocheck), c(7, 9))
 })
+
+test_that("Output is correct", {
+    input <- tibble::tribble(
+        ~"ID", ~"x", ~"y",
+        "A",    0,    0,
+        "B",    1,    1,
+        "C",    1,    3,
+        "A",    0,    2,
+    )
+
+    actual <- threshold_distance(input, 3, as_dataframe = TRUE)
+
+    expected <- tibble::tribble(
+        ~"i", ~"j", ~"distance", ~"ID_1", ~"ID_2",
+        1,    2,     sqrt(2),     "A",     "B",
+        4,    2,     sqrt(2),     "A",     "B",
+        4,    3,     sqrt(2),     "A",     "C",
+        2,    3,           2,     "B",     "C",
+    )
+
+    expect_equal(data.frame(actual), data.frame(expected))
+})
