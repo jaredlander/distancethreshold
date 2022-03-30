@@ -44,22 +44,29 @@ test_that("Outcome is the right size", {
 })
 
 test_that("Output is correct", {
-    input <- tibble::tribble(
-        ~"ID", ~"x", ~"y",
-        "A",    0,    0,
-        "B",    1,    1,
-        "C",    1,    3,
-        "A",    0,    2,
+    input <- structure(
+        list(
+            ID = c("A", "B", "C", "A"),
+            x = c(0, 1, 1, 0),
+            y = c(0, 1, 3, 2)
+        ), class = "data.frame", row.names = c(NA, -4L)
     )
 
     actual <- threshold_distance(input, 3, as_dataframe = TRUE)
 
-    expected <- tibble::tribble(
-        ~"i", ~"j", ~"distance", ~"ID_1", ~"ID_2",
-        1,    2,     sqrt(2),     "A",     "B",
-        4,    2,     sqrt(2),     "A",     "B",
-        4,    3,     sqrt(2),     "A",     "C",
-        2,    3,           2,     "B",     "C",
+    expected <- structure(
+        list(
+            i = c(1, 4, 4, 2),
+            j = c(2, 2, 3, 3),
+            distance = c(
+                1.4142135623731,
+                1.4142135623731,
+                1.4142135623731,
+                2
+            ),
+            ID_1 = c("A", "A", "A", "B"),
+            ID_2 = c("B", "B", "C", "C")
+        ), class = "data.frame", row.names = c(NA,-4L)
     )
 
     expect_equal(data.frame(actual), data.frame(expected))
