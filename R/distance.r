@@ -54,6 +54,7 @@ expand_column_values <- function(column, values, index_i, index_j)
 #' IDs, the distance between them and the rows numbers where the pairs occured.
 #' @export
 #' @importFrom data.table `:=`
+#' @importFrom data.table .I
 #' @examples
 #' thedf <- data.frame(
 #' ID=rep(LETTERS[1:3], length.out=10),
@@ -87,7 +88,7 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
 
     # switch to data.table for fast sorting
     data <- data.table::as.data.table(data)
-    data[, .i_original_ordering_ := .I]
+    data[, ".i_original_ordering_" := .I]
     data.table::setkeyv(data, cols[1])
 
     # the C++ function needs ID as an integer so make that happen
