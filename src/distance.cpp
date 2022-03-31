@@ -1,3 +1,4 @@
+#include <math.h>
 #include <RcppArmadillo.h>
 #include "dftomat.h"
 using namespace Rcpp;
@@ -7,9 +8,13 @@ using namespace Rcpp;
 
 // mean radius from:
 //  https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
-#define EARTH_RADIUS (double)6371000.0
+#define EARTH_RADIUS_METERS (double)6371000.0
 
-constexpr double EARTH_RADIUS_SQUARED = pow(EARTH_RADIUS, 2);
+constexpr double DEGS_TO_RADS = (double)M_PI/360.0;
+constexpr double DEGS_TO_METERS = EARTH_RADIUS_METERS * DEGS_TO_RADS;
+constexpr double DEGS_TO_METERS_SQUARED = pow(DEGS_TO_METERS, 2);
+
+// constexpr double EARTH_RADIUS_METERS_SQUARED = pow(EARTH_RADIUS_METERS, 2);
 
 double euclidean_squared(const arma::rowvec& x, const arma::rowvec& y)
 {
@@ -20,7 +25,7 @@ double euclidean_squared(const arma::rowvec& x, const arma::rowvec& y)
 double small_haversine_squared(const arma::rowvec& x, const arma::rowvec& y)
 {
     auto w = arma::rowvec({ 1, cos((x.at(0) + y.at(0)) / 2) });
-    return EARTH_RADIUS_SQUARED * sum(square((y - x) % w));
+    return DEGS_TO_METERS_SQUARED * sum(square((y - x) % w));
 }
 
 typedef double (*funcPtr)(const arma::rowvec&, const arma::rowvec&);
@@ -83,7 +88,7 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
 
             // if the distance is too far even on one dimension, skip the problem
             //if(abs(x[i] - x[j]) > threshold)
-            if(arma::as_scalar(abs(x.at(0) - y.at(0))) * (distance_type == "haversine" ? EARTH_RADIUS : 1.0) > threshold)
+            if(arma::as_scalar(abs(x.at(0) - y.at(0))) * (distance_type == "haversine" ? DEGS_TO_METERS : 1.0) > threshold)
             {
                 break;
             }
