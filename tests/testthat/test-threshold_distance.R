@@ -71,3 +71,23 @@ test_that("Output is correct", {
 
     expect_equal(data.frame(actual), data.frame(expected))
 })
+
+test_that("Points on a map work as expected", {
+    input <- data.frame(
+        ID = c("A", "B", "C", "A"),
+        lat = c(40.661092, 40.661881, 40.663330, 40.662768),
+        lon = c(-73.979391, -73.976676, -73.976505, -73.978200)
+    )
+
+    expected <- data.frame(
+        i = c(4, 2, 2),
+        j = c(3, 4, 3),
+        ID_1 = c("A", "B", "B"),
+        ID_2 = c("C", "A", "C")
+    )
+
+    actual <- threshold_distance(input, threshold = 100, cols = c("lat", "lon"), distance_type = "haversine", as_dataframe = TRUE) |>
+        (\(df) df[, c("i", "j", "ID_1", "ID_2")])()
+
+    expect_equal(data.frame(actual), data.frame(expected))
+})
