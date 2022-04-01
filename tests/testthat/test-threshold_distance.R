@@ -44,29 +44,25 @@ test_that("Outcome is the right size", {
 })
 
 test_that("Output is correct", {
-    input <- structure(
-        list(
-            ID = c("A", "B", "C", "A"),
-            x = c(0, 1, 1, 0),
-            y = c(0, 1, 3, 2)
-        ), class = "data.frame", row.names = c(NA, -4L)
+    input <- data.frame(
+        ID = c("A", "B", "C", "A"),
+        x = c(0, 1, 1, 0),
+        y = c(0, 1, 3, 2)
     )
 
     actual <- threshold_distance(input, 3, as_dataframe = TRUE)
 
-    expected <- structure(
-        list(
-            i = c(1, 4, 4, 2),
-            j = c(2, 2, 3, 3),
-            distance = c(
-                1.4142135623731,
-                1.4142135623731,
-                1.4142135623731,
-                2
-            ),
-            ID_1 = c("A", "A", "A", "B"),
-            ID_2 = c("B", "B", "C", "C")
-        ), class = "data.frame", row.names = c(NA,-4L)
+    expected <- data.frame(
+        i = c(1, 4, 4, 2),
+        j = c(2, 2, 3, 3),
+        distance = c(
+            1.4142135623731,
+            1.4142135623731,
+            1.4142135623731,
+            2
+        ),
+        ID_1 = c("A", "A", "A", "B"),
+        ID_2 = c("B", "B", "C", "C")
     )
 
     expect_equal(data.frame(actual), data.frame(expected))
@@ -75,18 +71,18 @@ test_that("Output is correct", {
 test_that("Points on a map work as expected", {
     input <- data.frame(
         ID = c("A", "B", "C", "A"),
-        lat = c(40.661092, 40.661881, 40.663330, 40.662768),
-        lon = c(-73.979391, -73.976676, -73.976505, -73.978200)
+        lat = c(40.668034, 40.66853, 40.66903, 40.66853),
+        lng = c(-73.971291, -73.97079, -73.97079, -73.971291)
     )
 
     expected <- data.frame(
-        i = c(4, 2, 2),
-        j = c(3, 4, 3),
-        ID_1 = c("A", "B", "B"),
-        ID_2 = c("C", "A", "C")
+        i = c(1, 4, 2, 2),
+        j = c(2, 3, 4, 3),
+        ID_1 = c("A", "A", "B", "B"),
+        ID_2 = c("B", "C", "A", "C")
     )
 
-    actual <- threshold_distance(input, threshold = 100, cols = c("lat", "lon"), distance_type = "haversine", as_dataframe = TRUE) |>
+    actual <- threshold_distance(input, threshold = 100, cols = c("lat", "lng"), distance_type = "haversine", as_dataframe = TRUE) |>
         (\(df) df[, c("i", "j", "ID_1", "ID_2")])()
 
     expect_equal(data.frame(actual), data.frame(expected))
