@@ -23,7 +23,7 @@ double euclidean_squared(const arma::rowvec& x, const arma::rowvec& y)
 double manhattan_distance(const arma::rowvec& x, const arma::rowvec& y)
 {
     return sum(abs(x - y));
-})
+}
 
 double small_haversine_squared(const arma::rowvec& x, const arma::rowvec& y)
 {
