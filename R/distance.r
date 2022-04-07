@@ -48,11 +48,13 @@ expand_column_values <- function(column, values, index_i, index_j)
 #' Two new elements will be made for each, one for the i index and one for the j index.
 #' @param as_dataframe `logical` if a `list` (default) or `data.frame` should be returned
 #' @param check_id Whether the ID variable should be checked for inclusion
+#' @param distance_type What distance function to use
 #'
 #' @return Either a `list` or `data.frame` showing which IDs matched with other
 #' IDs, the distance between them and the rows numbers where the pairs occured.
 #' @export
 #' @importFrom data.table `:=`
+#' @importFrom data.table .I
 #' @examples
 #' thedf <- data.frame(
 #' ID=rep(LETTERS[1:3], length.out=10),
@@ -66,7 +68,7 @@ expand_column_values <- function(column, values, index_i, index_j)
 #' threshold_distance(thedf, threshold=3, as_dataframe=FALSE)
 #' threshold_distance(thedf, threshold=3, as_dataframe=TRUE)
 #' threshold_distance(thedf, threshold=3, as_dataframe=TRUE, check_id=FALSE)
-threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", extra_columns=NULL, as_dataframe=FALSE, check_id=TRUE)
+threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", extra_columns=NULL, as_dataframe=FALSE, check_id=TRUE, distance_type = c("euclidean", "haversine"))
 {
     # make sure we're only working with data.frames (or tibbles, or data.tables)
     assertthat::assert_that(is.data.frame(data))
@@ -78,24 +80,32 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
     assertthat::assert_that(is.logical(as_dataframe))
     assertthat::assert_that(is.logical(check_id))
 
+    distance_type <- match.arg(distance_type, c("euclidean", "haversine"))
+
     # save generated ID column names for later
     idcol_1 <- sprintf("%s_1", id_col)
     idcol_2 <- sprintf("%s_2", id_col)
 
     # switch to data.table for fast sorting
     data <- data.table::as.data.table(data)
+    data[, ".i_original_ordering_" := .I]
     data.table::setkeyv(data, cols[1])
 
     # the C++ function needs ID as an integer so make that happen
     data[, '.id_integer_':=as.integer(as.factor(.SD[[id_col]])), .SDcols=id_col]
 
     # call the C++ function
-    results <- .Call(`_distancethreshold_threshold_distance`, data, threshold, cols, '.id_integer_', check_id)
+    results <- .Call(`_distancethreshold_threshold_distance`, data, threshold, cols, '.id_integer_', check_id, distance_type)
 
     # expand the IDs according to their corresponding indices
     # could have done this on the C++ side, except we passed integers to C++ instead of the actual IDs
     results[[idcol_1]] <- data[[id_col]][results$i]
     results[[idcol_2]] <- data[[id_col]][results$j]
+
+    # fix ordering of results
+    # sorting data causes the i, j to refer to the sorted data, not the original data
+    results$i <- data$.i_original_ordering_[results$i]
+    results$j <- data$.i_original_ordering_[results$j]
 
     # if the user wants other columns to be expanded, do it here
     if(!is.null(extra_columns))

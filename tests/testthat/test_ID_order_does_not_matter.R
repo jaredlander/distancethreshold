@@ -26,7 +26,7 @@ thedf2 <- data.frame(
 
 test_that("Results are the same", {
   expect_equal(
-      threshold_distance(thedf1, threshold=3, as_dataframe=TRUE),
-      threshold_distance(thedf2, threshold=3, as_dataframe=TRUE)
+      threshold_distance(thedf1, threshold=3, as_dataframe=TRUE) |> (\(df) df[order(df$ID_1, df$ID_2), c("ID_1", "ID_2", "distance")])(),
+      threshold_distance(thedf2, threshold=3, as_dataframe=TRUE) |> (\(df) df[order(df$ID_1, df$ID_2), c("ID_1", "ID_2", "distance")])()
   )
 })

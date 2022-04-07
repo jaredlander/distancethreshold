@@ -42,3 +42,48 @@ test_that("Outcome is the right size", {
     expect_equal(dim(res2_extras), c(5, 9))
     expect_equal(dim(res2_extras_nocheck), c(7, 9))
 })
+
+test_that("Output is correct", {
+    input <- data.frame(
+        ID = c("A", "B", "C", "A"),
+        x = c(0, 1, 1, 0),
+        y = c(0, 1, 3, 2)
+    )
+
+    actual <- threshold_distance(input, 3, as_dataframe = TRUE)
+
+    expected <- data.frame(
+        i = c(1, 4, 4, 2),
+        j = c(2, 2, 3, 3),
+        distance = c(
+            1.4142135623731,
+            1.4142135623731,
+            1.4142135623731,
+            2
+        ),
+        ID_1 = c("A", "A", "A", "B"),
+        ID_2 = c("B", "B", "C", "C")
+    )
+
+    expect_equal(data.frame(actual), data.frame(expected))
+})
+
+test_that("Points on a map work as expected", {
+    input <- data.frame(
+        ID = c("A", "B", "C", "A"),
+        lat = c(40.668034, 40.66853, 40.66903, 40.66853),
+        lng = c(-73.971291, -73.97079, -73.97079, -73.971291)
+    )
+
+    expected <- data.frame(
+        i = c(1, 4, 2, 2),
+        j = c(2, 3, 4, 3),
+        ID_1 = c("A", "A", "B", "B"),
+        ID_2 = c("B", "C", "A", "C")
+    )
+
+    actual <- threshold_distance(input, threshold = 100, cols = c("lat", "lng"), distance_type = "haversine", as_dataframe = TRUE) |>
+        (\(df) df[, c("i", "j", "ID_1", "ID_2")])()
+
+    expect_equal(data.frame(actual), data.frame(expected))
+})
