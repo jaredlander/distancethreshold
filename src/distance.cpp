@@ -22,6 +22,11 @@ double euclidean_squared(const arma::rowvec& x, const arma::rowvec& y)
     return sum(square(x - y));
 }
 
+double manhattan_distance(const arma::rowvec& x, const arma::rowvec& y)
+{
+    return sum(abs(x - y));
+})
+
 double small_haversine_squared(const arma::rowvec& x, const arma::rowvec& y)
 {
     auto w = arma::rowvec({ 1, cos((x.at(0) + y.at(0)) / 2) });
