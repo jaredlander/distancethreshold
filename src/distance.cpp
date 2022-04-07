@@ -14,8 +14,6 @@ constexpr double DEGS_TO_RADS = (double)M_PI/180.0;
 constexpr double DEGS_TO_METERS = EARTH_RADIUS_METERS * DEGS_TO_RADS;
 constexpr double DEGS_TO_METERS_SQUARED = pow(DEGS_TO_METERS, 2);
 
-// constexpr double EARTH_RADIUS_METERS_SQUARED = pow(EARTH_RADIUS_METERS, 2);
-
 double euclidean_squared(const arma::rowvec& x, const arma::rowvec& y)
 {
     // Computes the squared euclidean distance between the two row vectors
