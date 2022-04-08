@@ -46,6 +46,27 @@ namespace distancethreshold {
         return Rcpp::as<List >(rcpp_result_gen);
     }
 
+    inline List threshold_distance2(DataFrame left_obj, DataFrame right_obj, double threshold, CharacterVector cols = CharacterVector("x", "y"), String distance_type = "euclidean") {
+        typedef SEXP(*Ptr_threshold_distance2)(SEXP,SEXP,SEXP,SEXP,SEXP);
+        static Ptr_threshold_distance2 p_threshold_distance2 = NULL;
+        if (p_threshold_distance2 == NULL) {
+            validateSignature("List(*threshold_distance2)(DataFrame,DataFrame,double,CharacterVector,String)");
+            p_threshold_distance2 = (Ptr_threshold_distance2)R_GetCCallable("distancethreshold", "_distancethreshold_threshold_distance2");
+        }
+        RObject rcpp_result_gen;
+        {
+            RNGScope RCPP_rngScope_gen;
+            rcpp_result_gen = p_threshold_distance2(Shield<SEXP>(Rcpp::wrap(left_obj)), Shield<SEXP>(Rcpp::wrap(right_obj)), Shield<SEXP>(Rcpp::wrap(threshold)), Shield<SEXP>(Rcpp::wrap(cols)), Shield<SEXP>(Rcpp::wrap(distance_type)));
+        }
+        if (rcpp_result_gen.inherits("interrupted-error"))
+            throw Rcpp::internal::InterruptedException();
+        if (Rcpp::internal::isLongjumpSentinel(rcpp_result_gen))
+            throw Rcpp::LongjumpException(rcpp_result_gen);
+        if (rcpp_result_gen.inherits("try-error"))
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
+        return Rcpp::as<List >(rcpp_result_gen);
+    }
+
 }
 
 #endif // RCPP_distancethreshold_RCPPEXPORTS_H_GEN_

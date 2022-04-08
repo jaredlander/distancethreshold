@@ -136,3 +136,30 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
     return(results)
 }
 
+#' @export
+threshold_distance2 <- function(left_df, right_df, threshold, cols = c("x", "y"), as_dataframe=FALSE, distance_type = c("euclidean", "haversine"))
+{
+    distance_type <- match.arg(distance_type, c("euclidean", "haversine"))
+
+    # switch to data.table for fast sorting
+    left_df <- data.table::as.data.table(left_df)
+    left_df[, ".i_original_ordering_" := .I]
+    data.table::setkeyv(left_df, cols[1])
+
+    results <- .Call(`_distancethreshold_threshold_distance2`, left_df, right_df, threshold, cols, distance_type)
+
+    # fix ordering of results
+    # sorting data causes the j to refer to the sorted data, not the original data
+    results$i <- left_df$.i_original_ordering_[results$i]
+
+    if(as_dataframe)
+    {
+        results <- data.frame(
+            i = results$i,
+            j = results$j,
+            distance = results$distance
+        )
+    }
+
+    return(results)
+}

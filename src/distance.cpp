@@ -158,8 +158,8 @@ size_t rank_of(const arma::colvec& vec, const double& x)
 //' @title threshold_distance_compute2
 //' @description Computes distance between points in one object to another object
 //' @author Michael Beigelmacher
-//' [[Rcpp::export]]
-List threshold_distance2(DataFrame left, DataFrame right, double threshold, CharacterVector cols=CharacterVector("x", "y"), String distance_type = "euclidean")
+// [[Rcpp::export]]
+List threshold_distance2(DataFrame left_obj, DataFrame right_obj, double threshold, CharacterVector cols=CharacterVector("x", "y"), String distance_type = "euclidean")
 {
     funcPtr distance_func = nullptr;
     if (distance_type == "euclidean") {
@@ -171,9 +171,9 @@ List threshold_distance2(DataFrame left, DataFrame right, double threshold, Char
     // pre-compute the threshold in squared so we don't need to recompute on every iteration
     const double threshold_squared = pow(threshold, 2);
 
-    arma::mat left_mat = dftomat(left, cols);
+    arma::mat left_mat = dftomat(left_obj, cols);
     arma::colvec c = left_mat.col(0);
-    arma::mat right_mat = dftomat(right, cols);
+    arma::mat right_mat = dftomat(right_obj, cols);
 
     // vectors to track indices to keep
     std::vector<int> i_keep;
@@ -183,17 +183,17 @@ List threshold_distance2(DataFrame left, DataFrame right, double threshold, Char
     // keep track of how many we're processing
     R_xlen_t kept = 0;
 
-    for (size_t i = 0; i < right_mat.n_rows; ++i)
+    for (size_t j = 0; j < right_mat.n_rows; ++j)
     {
-        arma::rowvec x = right_mat.row(i);
+        arma::rowvec x = right_mat.row(j);
 
         for (
-            size_t j = rank_of(c, x.at(0) - (distance_type == "haversine" ? METERS_TO_DEGS : 1.0)*threshold);
-            j < left_mat.n_rows;
-            ++j
+            size_t i = rank_of(c, x.at(0) - (distance_type == "haversine" ? METERS_TO_DEGS : 1.0)*threshold);
+            i < left_mat.n_rows;
+            ++i
             )
         {
-            arma::rowvec y = left_mat.row(j);
+            arma::rowvec y = left_mat.row(i);
 
             // if the distance is too far even on one dimension, skip the problem
             if(arma::as_scalar(abs(x.at(0) - y.at(0))) * (distance_type == "haversine" ? DEGS_TO_METERS : 1.0) > threshold)

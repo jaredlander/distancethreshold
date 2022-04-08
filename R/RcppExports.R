@@ -21,12 +21,6 @@ dftomat <- function(obj, cols) {
 #' @author Michael Beigelmacher
 NULL
 
-#' @title threshold_distance_compute2
-#' @description Computes distance between points in one object to another object
-#' @author Michael Beigelmacher
-#' [[Rcpp::export]]
-NULL
-
 # Register entry points for exported C++ functions
 methods::setLoadAction(function(ns) {
     .Call('_distancethreshold_RcppExport_registerCCallable', PACKAGE = 'distancethreshold')
