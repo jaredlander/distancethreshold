@@ -136,7 +136,38 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
     return(results)
 }
 
+#' @title threshold_distance2
+#'
+#' @description Computes the distance between rows of `left_df` (old data)
+#' and `right_df` (new data) and returns those that fall below `threshold`.
+#'
+#' @md
+#' @author Michael Beigelmacher
+#' @param left_df `data.frame` old data to compare distances to
+#' @param right_df `data.frame` new data to check for points in `left_df` that are nearby
+#' @param threshold Maximum distance to return
+#' @param cols Names of columns of numeric data. The data will first be sorted on the first of these.
+#' @param as_dataframe `logical` if a `list` (default) or `data.frame` should be returned
+#' @param distance_type What distance function to use
+#'
+#' @return Either a `list` or `data.frame` showing which IDs matched with other
+#' IDs, the distance between them and the rows numbers where the pairs occured.
 #' @export
+#' @importFrom data.table `:=`
+#' @importFrom data.table .I
+#' @examples
+#' left_df <- data.frame(
+#' x = c(0, 1, 1, 0),
+#' y = c(0, 1, 3, 2)
+#' )
+#'
+#' right_df <- data.frame(
+#'    x = c(0, 0, 2),
+#'    y = c(1, 3, 2)
+#' )
+#'
+#' threshold_distance2(left_df, right_df, threshold = 1.5, as_dataframe=FALSE)
+#' threshold_distance2(left_df, right_df, threshold = 1.5, as_dataframe=TRUE)
 threshold_distance2 <- function(left_df, right_df, threshold, cols = c("x", "y"), as_dataframe=FALSE, distance_type = c("euclidean", "haversine"))
 {
     distance_type <- match.arg(distance_type, c("euclidean", "haversine"))
