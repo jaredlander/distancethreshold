@@ -32,7 +32,11 @@ x=sample(10),
 y=sample(10),
 extra1=sample(letters, size=10),
 extra2=sample(letters, size=10),
-extra3=sample(10)
+extra3=sample(10),
+extra4=Sys.time() + 1:10
 )
 distancethreshold:::expand_column_values('extra1', thedf$extra1, index_i=c(1, 3), index_j=c(2, 4))
+distancethreshold:::expand_column_values('extra2', thedf$extra2, index_i=c(1, 3), index_j=c(2, 4))
+distancethreshold:::expand_column_values('extra3', thedf$extra3, index_i=c(1, 3), index_j=c(2, 4))
+distancethreshold:::expand_column_values('extra4', thedf$extra4, index_i=c(1, 3), index_j=c(2, 4))
 }
