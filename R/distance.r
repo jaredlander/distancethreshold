@@ -15,13 +15,23 @@
 #' y=sample(10),
 #' extra1=sample(letters, size=10),
 #' extra2=sample(letters, size=10),
-#' extra3=sample(10)
+#' extra3=sample(10),
+#' extra4=Sys.time() + 1:10
 #' )
 #' distancethreshold:::expand_column_values('extra1', thedf$extra1, index_i=c(1, 3), index_j=c(2, 4))
+#' distancethreshold:::expand_column_values('extra2', thedf$extra2, index_i=c(1, 3), index_j=c(2, 4))
+#' distancethreshold:::expand_column_values('extra3', thedf$extra3, index_i=c(1, 3), index_j=c(2, 4))
+#' distancethreshold:::expand_column_values('extra4', thedf$extra4, index_i=c(1, 3), index_j=c(2, 4))
 expand_column_values <- function(column, values, index_i, index_j)
 {
     assertthat::assert_that(is.character(column))
-    assertthat::assert_that(is.vector(values))
+    # values can be a factor or timestamp or other such type that does not
+    # pass is.vector
+    # so instead we check that it has no dim (vectors don't have rows and columns)
+    # and that it has length at least one
+    # would be nice if there was a better way to check if something is vector-like
+    assertthat::assert_that(is.null(dim(values)))
+    assertthat::assert_that(length(values) >= 1)
     assertthat::assert_that(is.vector(index_i))
     assertthat::assert_that(is.vector(index_j))
 
