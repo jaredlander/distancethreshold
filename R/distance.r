@@ -112,11 +112,6 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
     results[[idcol_1]] <- data[[id_col]][results$i]
     results[[idcol_2]] <- data[[id_col]][results$j]
 
-    # fix ordering of results
-    # sorting data causes the i, j to refer to the sorted data, not the original data
-    results$i <- data$.i_original_ordering_[results$i]
-    results$j <- data$.i_original_ordering_[results$j]
-
     # if the user wants other columns to be expanded, do it here
     if(!is.null(extra_columns))
     {
@@ -130,6 +125,13 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
         # little trick to make sure we get a data.frame
         results <- c(results, as.list(Reduce(cbind, extras)))
     }
+
+    # fix ordering of results
+    # sorting data causes the i, j to refer to the sorted data, not the original data
+    # this has to happen after extra columns are matched
+    # otherwise the indices match the wrong rows
+    results$i <- data$.i_original_ordering_[results$i]
+    results$j <- data$.i_original_ordering_[results$j]
 
     # if we want a data.frame we get a data.table
     if(as_dataframe)

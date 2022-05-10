@@ -2,6 +2,7 @@
 
 export(dftomat)
 export(threshold_distance)
+export(threshold_distance2)
 importFrom(Rcpp,sourceCpp)
 importFrom(data.table,.I)
 importFrom(data.table,`:=`)
