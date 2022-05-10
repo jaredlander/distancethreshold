@@ -87,3 +87,79 @@ test_that("Points on a map work as expected", {
 
     expect_equal(data.frame(actual), data.frame(expected))
 })
+
+test_that("Distancing new points to old points works as expected (data.frame)", {
+    # old data
+    left_df <- data.frame(
+        x = c(0, 1, 1, 0),
+        y = c(0, 1, 3, 2)
+    )
+
+    # new data
+    right_df <- data.frame(
+        x = c(0, 0, 2),
+        y = c(1, 3, 2)
+    )
+
+    expected <- data.frame(
+        i = c(1, 4, 2, 4, 3, 2, 3),
+        j = c(1, 1, 1, 2, 2, 3, 3),
+        distance = c(1, 1, 1, 1, 1, sqrt(2), sqrt(2))
+    )
+
+    actual <- threshold_distance2(left_df, right_df, 1.5, as_dataframe = TRUE)
+
+    expect_equal(actual, expected)
+})
+
+test_that("Distancing new points to old points works as expected (list)", {
+    # old data
+    left_df <- data.frame(
+        x = c(0, 1, 1, 0),
+        y = c(0, 1, 3, 2)
+    )
+
+    # new data
+    right_df <- data.frame(
+        x = c(0, 0, 2),
+        y = c(1, 3, 2)
+    )
+
+    expected <- list(
+        i = c(1, 4, 2, 4, 3, 2, 3),
+        j = c(1, 1, 1, 2, 2, 3, 3),
+        distance = c(1, 1, 1, 1, 1, sqrt(2), sqrt(2)),
+        kept = 7,
+        skipped = 5
+    )
+
+    actual <- threshold_distance2(left_df, right_df, 1.5)
+
+    expect_equal(actual, expected)
+})
+
+test_that("Distancing new points on a map to old points works as expected (data.frame)", {
+    left_df <- data.frame(
+        lat = c(40.668034, 40.66853, 40.66903, 40.66853),
+        lng = c(-73.971291, -73.97079, -73.97079, -73.971291)
+    )
+
+    right_df <- data.frame(
+        lat = c(40.668366, 40.66903, 40.668698),
+        lng = c(-73.971291, -73.971291, 40.669036)
+    )
+
+    expected <- data.frame(
+        i = c(1, 2, 4, 3, 2, 4, 3),
+        j = c(1, 1, 1, 1, 2, 2, 2)
+    )
+
+    actual <- threshold_distance2(left_df, right_df,
+                                  threshold = 100,
+                                  cols = c("lat", "lng"),
+                                  as_dataframe = TRUE,
+                                  distance_type = "haversine") |>
+        (\(df) df[, c("i", "j")])()
+
+    expect_equal(actual, expected)
+})
