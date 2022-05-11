@@ -31,7 +31,7 @@ expand_column_values <- function(column, values, index_i, index_j)
     # and that it has length at least one
     # would be nice if there was a better way to check if something is vector-like
     assertthat::assert_that(is.null(dim(values)))
-    assertthat::assert_that(length(values) >= 1)
+    assertthat::assert_that(length(values) >= 0)
     assertthat::assert_that(is.vector(index_i))
     assertthat::assert_that(is.vector(index_j))
 

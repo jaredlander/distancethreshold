@@ -82,8 +82,7 @@ test_that("Points on a map work as expected", {
         ID_2 = c("B", "C", "A", "C")
     )
 
-    actual <- threshold_distance(input, threshold = 100, cols = c("lat", "lng"), distance_type = "haversine", as_dataframe = TRUE) |>
-        (\(df) df[, c("i", "j", "ID_1", "ID_2")])()
+    actual <- threshold_distance(input, threshold = 100, cols = c("lat", "lng"), distance_type = "haversine", as_dataframe = TRUE)[, c("i", "j", "ID_1", "ID_2")]
 
     expect_equal(data.frame(actual), data.frame(expected))
 })
