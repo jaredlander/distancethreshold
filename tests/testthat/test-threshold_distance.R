@@ -215,3 +215,6 @@ test_that("Distancing new points on a map to old points works as expected (data.
   attr(expected, 'skipped') <- 5
   expect_equal(actual_no_id[order(i, j)], expected[order(i, j)])
 })
+
+
+# TODO: add tests for extra_columns
