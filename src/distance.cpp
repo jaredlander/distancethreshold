@@ -136,6 +136,7 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
 }
 
 //' @title rank_of
+//' @name rank_of
 //' @description Find rank of an element in a sorted array
 //' @author Michael Beigelmacher
 size_t rank_of(const arma::colvec& vec, const double& x)
@@ -159,7 +160,7 @@ size_t rank_of(const arma::colvec& vec, const double& x)
 //' @description Computes distance between points in one object to another object
 //' @author Michael Beigelmacher
 // [[Rcpp::export]]
-List threshold_distance2(DataFrame left_obj, DataFrame right_obj, double threshold, CharacterVector cols=CharacterVector("x", "y"), String distance_type = "euclidean")
+List threshold_distance2(DataFrame left_obj, DataFrame right_obj, double threshold, CharacterVector cols=CharacterVector("x", "y"), String id_col="ID", bool check_id=TRUE, String distance_type = "euclidean")
 {
     funcPtr distance_func = nullptr;
     if (distance_type == "euclidean") {
@@ -174,6 +175,19 @@ List threshold_distance2(DataFrame left_obj, DataFrame right_obj, double thresho
     arma::mat left_mat = dftomat(left_obj, cols);
     arma::colvec c = left_mat.col(0);
     arma::mat right_mat = dftomat(right_obj, cols);
+
+    IntegerVector id_left;
+    IntegerVector id_right;
+    if(check_id)
+    {
+        id_left = left_obj[id_col];
+        id_right = right_obj[id_col];
+    }
+    else
+    {
+        id_left.push_back(0);
+        id_right.push_back(0);
+    }
 
     // vectors to track indices to keep
     std::vector<int> i_keep;
@@ -193,6 +207,12 @@ List threshold_distance2(DataFrame left_obj, DataFrame right_obj, double thresho
             ++i
             )
         {
+            // don't compare a number with itself
+            if(check_id && id_right[j] == id_left[i])
+            {
+                continue;
+            }
+
             arma::rowvec y = left_mat.row(i);
 
             // if the distance is too far even on one dimension, skip the problem

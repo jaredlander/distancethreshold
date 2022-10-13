@@ -9,4 +9,4 @@
 src/index_test.cpp
 src/map_test.cpp
 ^codecov.yml$
-
+.vscode

@@ -9,7 +9,10 @@ threshold_distance2(
   right_df,
   threshold,
   cols = c("x", "y"),
+  id_col = "ID",
+  extra_columns = NULL,
   as_dataframe = FALSE,
+  check_id = FALSE,
   distance_type = c("euclidean", "haversine")
 )
 }
@@ -22,7 +25,13 @@ threshold_distance2(
 
 \item{cols}{Names of columns of numeric data. The data will first be sorted on the first of these.}
 
+\item{id_col}{Name of column holding ID data}
+
+\item{extra_columns}{Names of other columns to expand into the results based on indices.}
+
 \item{as_dataframe}{\code{logical} if a \code{list} (default) or \code{data.frame} should be returned}
+
+\item{check_id}{Whether the ID variable should be checked for inclusion}
 
 \item{distance_type}{What distance function to use}
 }

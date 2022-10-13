@@ -92,17 +92,24 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
 
     distance_type <- match.arg(distance_type, c("euclidean", "haversine"))
 
-    # save generated ID column names for later
-    idcol_1 <- sprintf("%s_1", id_col)
-    idcol_2 <- sprintf("%s_2", id_col)
-
     # switch to data.table for fast sorting
     data <- data.table::as.data.table(data)
     data[, ".i_original_ordering_" := .I]
     data.table::setkeyv(data, cols[1])
 
     # the C++ function needs ID as an integer so make that happen
-    data[, '.id_integer_':=as.integer(as.factor(.SD[[id_col]])), .SDcols=id_col]
+    if(id_col %in% names(data))
+    {
+        data[, '.id_integer_':=as.integer(as.factor(.SD[[id_col]])), .SDcols=id_col]
+    } else
+    {
+        id_col <- '.id_integer_'
+        data[, '.id_integer_':=.I]
+    }
+
+    # save generated ID column names for later
+    idcol_1 <- sprintf("%s_1", id_col)
+    idcol_2 <- sprintf("%s_2", id_col)
 
     # call the C++ function
     results <- .Call(`_distancethreshold_threshold_distance`, data, threshold, cols, '.id_integer_', check_id, distance_type)
@@ -159,7 +166,10 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
 #' @param right_df `data.frame` new data to check for points in `left_df` that are nearby
 #' @param threshold Maximum distance to return
 #' @param cols Names of columns of numeric data. The data will first be sorted on the first of these.
+#' @param id_col Name of column holding ID data
+#' @param extra_columns Names of other columns to expand into the results based on indices.
 #' @param as_dataframe `logical` if a `list` (default) or `data.frame` should be returned
+#' @param check_id Whether the ID variable should be checked for inclusion
 #' @param distance_type What distance function to use
 #'
 #' @return Either a `list` or `data.frame` showing which IDs matched with other
@@ -180,28 +190,99 @@ threshold_distance <- function(data, threshold, cols=c("x", "y"), id_col="ID", e
 #'
 #' threshold_distance2(left_df, right_df, threshold = 1.5, as_dataframe=FALSE)
 #' threshold_distance2(left_df, right_df, threshold = 1.5, as_dataframe=TRUE)
-threshold_distance2 <- function(left_df, right_df, threshold, cols = c("x", "y"), as_dataframe=FALSE, distance_type = c("euclidean", "haversine"))
+threshold_distance2 <- function(left_df, right_df, threshold, cols = c("x", "y"), id_col="ID", extra_columns=NULL, as_dataframe=FALSE, check_id=FALSE, distance_type = c("euclidean", "haversine"))
 {
+    # make sure we're only working with data.frames (or tibbles, or data.tables)
+    assertthat::assert_that(is.data.frame(left_df))
+    assertthat::assert_that(is.data.frame(right_df))
+    assertthat::assert_that(is.numeric(threshold))
+    assertthat::assert_that(length(threshold) == 1)
+    assertthat::assert_that(is.character(cols))
+    assertthat::assert_that(is.character(id_col))
+    assertthat::assert_that(is.character(extra_columns) | is.null(extra_columns))
+    assertthat::assert_that(is.logical(as_dataframe))
+    assertthat::assert_that(is.logical(check_id))
+
     distance_type <- match.arg(distance_type, c("euclidean", "haversine"))
 
     # switch to data.table for fast sorting
     left_df <- data.table::as.data.table(left_df)
     left_df[, ".i_original_ordering_" := .I]
     data.table::setkeyv(left_df, cols[1])
+    right_df <- data.table::as.data.table(right_df)
+    right_df[, ".j_original_ordering_" := .I]
+    data.table::setkeyv(right_df, cols[1])
 
-    results <- .Call(`_distancethreshold_threshold_distance2`, left_df, right_df, threshold, cols, distance_type)
+    # the C++ function needs ID as an integer so make that happen
+    # if the id column doesn't exist, we add a fake one
+    if(id_col %in% names(left_df))
+    {
+        keep_id <- TRUE
+        left_df[, '.id_integer_':=as.integer(as.factor(.SD[[id_col]])), .SDcols=id_col]
+        right_df[, '.id_integer_':=as.integer(as.factor(.SD[[id_col]])), .SDcols=id_col]
+    } else
+    {
+        keep_id <- FALSE
+        id_col <- '.id_integer_'
+        left_df[, '.id_integer_':=.I]
+        right_df[, '.id_integer_':=.I]
+    }
+
+    # save generated ID column names for later
+    idcol_1 <- sprintf("%s_1", id_col)
+    idcol_2 <- sprintf("%s_2", id_col)
+
+    results <- .Call(`_distancethreshold_threshold_distance2`, left_df, right_df, threshold, cols, '.id_integer_', check_id, distance_type)
+
+    # expand the IDs according to their corresponding indices
+    # could have done this on the C++ side, except we passed integers to C++ instead of the actual IDs
+    if(isTRUE(keep_id))
+    {
+        results[[idcol_1]] <- left_df[[id_col]][results$i]
+        results[[idcol_2]] <- right_df[[id_col]][results$j]
+    }
+
+    # if the user wants other columns to be expanded, do it here
+    if(!is.null(extra_columns))
+    {
+        extras <- mapply(
+            expand_column_values,
+            extra_columns, data[, extra_columns, with=FALSE],
+            MoreArgs=list(index_i=results$i, index_j=results$j),
+            SIMPLIFY=FALSE
+        )
+
+        # little trick to make sure we get a data.frame
+        results <- c(results, as.list(Reduce(cbind, extras)))
+    }
 
     # fix ordering of results
     # sorting data causes the j to refer to the sorted data, not the original data
     results$i <- left_df$.i_original_ordering_[results$i]
+    results$j <- right_df$.j_original_ordering_[results$j]
 
     if(as_dataframe)
     {
-        results <- data.frame(
-            i = results$i,
-            j = results$j,
-            distance = results$distance
-        )
+        kept <- results$kept
+        skipped <- results$skipped
+        results$kept <- NULL
+        results$skipped <- NULL
+        # results <- data.table::setDT(results)
+        if(isTRUE(keep_id))
+        {
+            results <- data.table::setDT(results, key=c(idcol_1, idcol_2))
+        } else
+        {
+            results <- data.table::setDT(results)
+        }
+        data.table::setattr(x=results, name='kept', value=kept)
+        data.table::setattr(x=results, name='skipped', value=skipped)
+
+        # results <- data.frame(
+        #     i = results$i,
+        #     j = results$j,
+        #     distance = results$distance
+        # )
     }
 
     return(results)
