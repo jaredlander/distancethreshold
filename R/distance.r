@@ -263,7 +263,7 @@ threshold_distance2 <- function(left_df, right_df, threshold, cols = c("x", "y")
 
         # now we join in those columns
         # this assumes the data are sorted properly
-        right_df[, j:=.I][, .SD, .SDcols=c('j', extras_2)][left_df[, i:=.I][, .SD, .SDcols=c('i', extras_1)][results, on=c('i'='i')], on=c('j'='j')]
+        right_df[, j:=.I][, .SD, .SDcols=c('j', extra_columns_right)][left_df[, i:=.I][, .SD, .SDcols=c('i', extra_columns_left)][results, on=c('i'='i')], on=c('j'='j')]
     }
 
     # fix ordering of results
