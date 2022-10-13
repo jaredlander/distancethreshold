@@ -245,15 +245,25 @@ threshold_distance2 <- function(left_df, right_df, threshold, cols = c("x", "y")
     # if the user wants other columns to be expanded, do it here
     if(!is.null(extra_columns))
     {
-        extras <- mapply(
-            expand_column_values,
-            extra_columns, data[, extra_columns, with=FALSE],
-            MoreArgs=list(index_i=results$i, index_j=results$j),
-            SIMPLIFY=FALSE
-        )
+        # extras <- mapply(
+        #     expand_column_values,
+        #     extra_columns, data[, extra_columns, with=FALSE],
+        #     MoreArgs=list(index_i=results$i, index_j=results$j),
+        #     SIMPLIFY=FALSE
+        # )
+        #
+        # # little trick to make sure we get a data.frame
+        # results <- c(results, as.list(Reduce(cbind, extras)))
 
-        # little trick to make sure we get a data.frame
-        results <- c(results, as.list(Reduce(cbind, extras)))
+        # going to rename columns in the original data so the join is nice
+        extra_columns_left <- sprintf('%s_1', c(extra_columns))
+        extra_columns_right <- sprintf('%s_2', c(extra_columns))
+        data.table::setnames(left_df, extra_columns, extra_columns_left)
+        data.table::setnames(right_df, extra_columns, extra_columns_right)
+
+        # now we join in those columns
+        # this assumes the data are sorted properly
+        right_df[, j:=.I][, .SD, .SDcols=c('j', extras_2)][left_df[, i:=.I][, .SD, .SDcols=c('i', extras_1)][results, on=c('i'='i')], on=c('j'='j')]
     }
 
     # fix ordering of results
