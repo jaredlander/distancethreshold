@@ -17,6 +17,7 @@ dftomat <- function(obj, cols) {
 }
 
 #' @title rank_of
+#' @name rank_of
 #' @description Find rank of an element in a sorted array
 #' @author Michael Beigelmacher
 NULL
