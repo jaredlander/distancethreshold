@@ -24,5 +24,5 @@ NULL
 
 # Register entry points for exported C++ functions
 methods::setLoadAction(function(ns) {
-    .Call('_distancethreshold_RcppExport_registerCCallable', PACKAGE = 'distancethreshold')
+    .Call(`_distancethreshold_RcppExport_registerCCallable`)
 })
