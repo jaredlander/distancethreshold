@@ -3,7 +3,7 @@
 #include "dftomat.h"
 #include <cstddef>
 using namespace Rcpp;
-// [[Rcpp::plugins(cpp11)]]
+// [[Rcpp::plugins(cpp17)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::interfaces(cpp)]]
 
@@ -14,7 +14,7 @@ using namespace Rcpp;
 constexpr double DEGS_TO_RADS = (double)M_PI/180.0;
 constexpr double DEGS_TO_METERS = EARTH_RADIUS_METERS * DEGS_TO_RADS;
 constexpr double METERS_TO_DEGS = 1.0 / DEGS_TO_METERS;
-constexpr double DEGS_TO_METERS_SQUARED = pow(DEGS_TO_METERS, 2);
+constexpr double DEGS_TO_METERS_SQUARED = DEGS_TO_METERS * DEGS_TO_METERS;
 
 double euclidean_squared(const arma::rowvec& x, const arma::rowvec& y)
 {
@@ -127,8 +127,8 @@ List threshold_distance(DataFrame obj, double threshold, CharacterVector cols=Ch
     R_xlen_t skipped = num_rows*(num_rows - 1)/2 - kept;
 
     // need to add 1 back to the indices since C++ starts at 0 while R starts at 1
-    transform(i_keep.begin(), i_keep.end(), i_keep.begin(), bind2nd(std::plus<int>(), 1));
-    transform(j_keep.begin(), j_keep.end(), j_keep.begin(), bind2nd(std::plus<int>(), 1));
+    transform(i_keep.begin(), i_keep.end(), i_keep.begin(), [](int x){ return x + 1; });
+    transform(j_keep.begin(), j_keep.end(), j_keep.begin(), [](int x){ return x + 1; });
 
     List results = List::create(_["i"]=i_keep, _["j"]=j_keep, _["distance"]=distances, _["kept"]=kept, _["skipped"]=skipped);
 
@@ -243,8 +243,8 @@ List threshold_distance2(DataFrame left_obj, DataFrame right_obj, double thresho
     R_xlen_t skipped = right_mat.n_rows * left_mat.n_rows - kept;
 
     // need to add 1 back to the indices since C++ starts at 0 while R starts at 1
-    transform(i_keep.begin(), i_keep.end(), i_keep.begin(), bind2nd(std::plus<int>(), 1));
-    transform(j_keep.begin(), j_keep.end(), j_keep.begin(), bind2nd(std::plus<int>(), 1));
+    transform(i_keep.begin(), i_keep.end(), i_keep.begin(), [](int x){ return x + 1; });
+    transform(j_keep.begin(), j_keep.end(), j_keep.begin(), [](int x){ return x + 1; });
 
     List results = List::create(_["i"]=i_keep, _["j"]=j_keep, _["distance"]=distances, _["kept"]=kept, _["skipped"]=skipped);
 
